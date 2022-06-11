@@ -8,15 +8,24 @@ def check_for_redirect(response):
     if response.history:
         raise requests.HTTPError()
 
-def get_title(url):
+def parse_book_page(id):
+    """Функция для получения информации со страницы с книгой
+    Args:
+        id(int) : id номер книги на сайте tululu
+    Returns:
+        tuple: Заголовок, автор, и урл картинки
+    """
+    url = 'https://tululu.org/b{}/'.format(id)
     response = requests.get(url)
     response.raise_for_status()
     check_for_redirect(response)
     soup = BeautifulSoup(response.text, 'lxml')
     h1 = soup.find('h1').text
-    print(h1)
     title, author = map(lambda x : x.strip(), h1.split('::'))
-    return title
+    image_url = soup.find('div' , class_='bookimage').find('img')['src']
+    image_full_url = urljoin("https://tululu.org/", image_url)
+    return title,author,image_full_url
+
 def download_image(url, filename, folder='images'):
     """Функция для скачивания картинок.
     Args:
@@ -28,15 +37,10 @@ def download_image(url, filename, folder='images'):
     """
     response = requests.get(url)
     response.raise_for_status()
-    #print(response.text)
-    #check_for_redirect(response)
-    soup = BeautifulSoup(response.text, 'lxml')
-    image_url = soup.find('div' , class_='bookimage').find('img')['src']
-    image_full_url = urljoin("https://tululu.org/", image_url)
-    print(unquote(urlsplit(image_full_url).path))
-    file_ext = unquote(urlsplit(image_full_url).path).split('.')[-1]
+    #print(unquote(urlsplit(image_full_url).path))
+    file_ext = unquote(urlsplit(url).path).split('.')[-1]
     print("Расширение файла : ",file_ext)
-    print(f"Ссылка на картинку: {image_full_url}")
+    print(f"Ссылка на картинку: {url}")
     if not os.path.exists(folder):
         os.makedirs(folder)
     name = f"{sanitize_filename(filename)}.{file_ext}"
@@ -73,11 +77,14 @@ def download_txt(url, filename, folder='books/'):
 
 
 if __name__ == "__main__":
-    download_image("https://tululu.org/b1","sweety")
-    # for id in range(1, 11):
-    #     url_for_title = 'https://tululu.org/b{}/'.format(id)
-    #     url_for_txt = "https://tululu.org/txt.php?id={}".format(id)
-    #     try:
+    for id in range(1, 11):
+         url_for_txt = "https://tululu.org/txt.php?id={}".format(id)
+         try:
+             title,author,url = parse_book_page(id);
+         except requests.HTTPError as error:
+            print("Ошибка при парсинге страницы",error)
+            continue
+         print(title,author,url)
     #         title = get_title(url_for_title)
     #         fname  = f"{id}.{title}"
     #         download_txt(url_for_txt,fname)
