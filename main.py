@@ -39,7 +39,15 @@ def get_genres(soup):
     genres = [i.text for i in raw_genres]
     return genres
 
-def parse_book_page(id):
+def parse_book_page(soup):
+    return {
+        'genres' : get_genres(soup),
+        'comments' : get_comments(soup),
+        'url_image' : get_url_image(soup),
+        'title' : get_title(soup),
+        'author' : get_author(soup)
+    }
+def get_book_soup(id):
     """Функция для получения информации со страницы с книгой
     Args:
         id(int) : id номер книги на сайте tululu
@@ -111,19 +119,16 @@ if __name__ == "__main__":
     for id in range(1, 11):
         url_for_txt = "https://tululu.org/txt.php?id={}".format(id)
         try:
-            soup = parse_book_page(id)
-
+            soup = get_book_soup(id)
         except requests.HTTPError as error:
             #print("Ошибка при парсинге страницы",error)
             continue
-        title = get_title(soup)
-        genres = get_genres(soup)
-        #comments = get_comments(soup)
-        print(title,end = '\n')
+        book_info = parse_book_page(soup)
+        print(book_info['title'],end = '\n')
     #    for comment in comments:
     #        print(comment)
 
-        print(genres,end ='\n\n')
+        print(book_info['genres'],end ='\n\n')
     #         title = get_title(url_for_title)
     #         fname  = f"{id}.{title}"
     #         download_txt(url_for_txt,fname)
