@@ -1,9 +1,10 @@
-import requests
+import argparse
 import os
 from urllib.parse import unquote, urlsplit, urljoin
-from pathvalidate import sanitize_filename
+
 from bs4 import BeautifulSoup
-import argparse
+import requests
+from pathvalidate import sanitize_filename
 
 
 def check_for_redirect(response):
