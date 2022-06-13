@@ -71,14 +71,8 @@ def download_image(url, filename=None, folder='images'):
     Returns:
         str: Путь до файла, куда сохранена картинка.
     """
-    response = requests.get(url)
-    response.raise_for_status()
-    # print(unquote(urlsplit(image_full_url).path))
-    file_ext = unquote(urlsplit(url).path).split('/')[-1]
     if not filename:
         filename = unquote(urlsplit(url).path).split('/')[-1]
-    print("имя файла : ", filename)
-    print(f"Ссылка на картинку: {url}")
     if not os.path.exists(folder):
         os.makedirs(folder)
     name = f"{sanitize_filename(filename)}"
@@ -86,6 +80,10 @@ def download_image(url, filename=None, folder='images'):
     if os.path.exists(fullpath):
         print("Уже скачано")
         return fullpath
+    response = requests.get(url)
+    response.raise_for_status()
+    print("имя файла : ", filename)
+    print(f"Ссылка на картинку: {url}")
     with open(fullpath, 'wb') as file:
         file.write(response.content)
     return fullpath
@@ -100,16 +98,16 @@ def download_txt(url, filename, folder='books/'):
     Returns:
         str: Путь до файла, куда сохранён текст.
     """
-    response = requests.get(url)
-    response.raise_for_status()
-    check_for_redirect(response)
     if not os.path.exists(folder):
         os.makedirs(folder)
     name = sanitize_filename(filename) + '.txt'
     fullpath = os.path.join(folder, name)
     if os.path.exists(fullpath):
-        print("Уже скачано")
+        print("Книга уже загружена")
         return fullpath
+    response = requests.get(url)
+    response.raise_for_status()
+    check_for_redirect(response)
     with open(fullpath, 'wb') as file:
         file.write(response.content)
     return fullpath
