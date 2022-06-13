@@ -106,7 +106,7 @@ def download_txt(url, filename, folder='books/'):
     """
     if not os.path.exists(folder):
         os.makedirs(folder)
-    name = sanitize_filename(filename) + '.txt'
+    name = f"{sanitize_filename(filename)}.txt"
     fullpath = os.path.join(folder, name)
     if os.path.exists(fullpath):
         print("Книга уже загружена")
