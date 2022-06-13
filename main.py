@@ -26,7 +26,7 @@ def parse_book_page(id):
     image_full_url = urljoin("https://tululu.org/", image_url)
     return title,author,image_full_url
 
-def download_image(url, filename, folder='images'):
+def download_image(url, filename=None, folder='images'):
     """Функция для скачивания картинок.
     Args:
         url (str): Cсылка на картинку, которую хочется скачать.
@@ -38,12 +38,14 @@ def download_image(url, filename, folder='images'):
     response = requests.get(url)
     response.raise_for_status()
     #print(unquote(urlsplit(image_full_url).path))
-    file_ext = unquote(urlsplit(url).path).split('.')[-1]
-    print("Расширение файла : ",file_ext)
+    file_ext = unquote(urlsplit(url).path).split('/')[-1]
+    if not filename:
+        filename = unquote(urlsplit(url).path).split('/')[-1]
+    print("имя файла : ",filename)
     print(f"Ссылка на картинку: {url}")
     if not os.path.exists(folder):
         os.makedirs(folder)
-    name = f"{sanitize_filename(filename)}.{file_ext}"
+    name = f"{sanitize_filename(filename)}"
     fullpath = os.path.join(folder, name)
     if os.path.exists(fullpath):
         print("Уже скачано")
@@ -80,11 +82,12 @@ if __name__ == "__main__":
     for id in range(1, 11):
          url_for_txt = "https://tululu.org/txt.php?id={}".format(id)
          try:
-             title,author,url = parse_book_page(id);
+             title,author,image_url = parse_book_page(id);
          except requests.HTTPError as error:
-            print("Ошибка при парсинге страницы",error)
+            #print("Ошибка при парсинге страницы",error)
             continue
-         print(title,author,url)
+         print(title,author,image_url)
+         download_image(image_url)
     #         title = get_title(url_for_title)
     #         fname  = f"{id}.{title}"
     #         download_txt(url_for_txt,fname)
