@@ -3,7 +3,7 @@ import os
 from urllib.parse import unquote, urlsplit, urljoin
 from pathvalidate import sanitize_filename
 from bs4 import BeautifulSoup
-
+import argparse
 
 def check_for_redirect(response):
     if response.history:
@@ -116,7 +116,13 @@ def download_txt(url, filename, folder='books/'):
 
 
 if __name__ == "__main__":
-    for id in range(1, 11):
+    parser = argparse.ArgumentParser(
+        description='Скачиваем книги с start_id  до end_id с сайта https://tululu.org '
+        )
+    parser.add_argument('start_id', help='Номер книги с которого начинаем',type=int)
+    parser.add_argument('end_id', help='Номер на котором заканчиваем',type=int)
+    args = parser.parse_args()
+    for id in range(args.start_id, args.end_id):
         url_for_txt = "https://tululu.org/txt.php?id={}".format(id)
         try:
             soup = get_book_soup(id)
