@@ -43,7 +43,7 @@ def parse_book_page(soup):
     return {
         'genres' : get_genres(soup),
         'comments' : get_comments(soup),
-        'url_image' : get_url_image(soup),
+        'image_url' : get_url_image(soup),
         'title' : get_title(soup),
         'author' : get_author(soup)
     }
@@ -125,17 +125,17 @@ if __name__ == "__main__":
         try:
             soup = get_book_soup(id)
         except requests.HTTPError as error:
-            #print("Ошибка при парсинге страницы",error)
             continue
         book_info = parse_book_page(soup)
         print(book_info['title'],end = '\n')
-    #    for comment in comments:
-    #        print(comment)
-
         print(book_info['genres'],end ='\n\n')
-    #         title = get_title(url_for_title)
-    #         fname  = f"{id}.{title}"
-    #         download_txt(url_for_txt,fname)
-    #     except requests.HTTPError as error:
-    #         print(error)
-    #         continue
+        title = book_info['title']
+        fname  = f"{id}.{title}"
+        try:
+             download_txt(url_for_txt,fname)
+        except requests.HTTPError as error:
+             continue
+        try:
+             download_image(book_info['image_url'])
+        except requests.HTTPError as error:
+             continue
