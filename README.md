@@ -8,8 +8,14 @@
 Для запуска утилиты у вас уже должен быть установлен Python 3.
 
 - Скачайте код
-- Установите зависимости командой `pip install -r requirements.txt`
-- Запустите скрипт командой `python main.py start_id end_id `
+- Установите зависимости командой
+```
+pip install -r requirements.txt
+```
+- Запустите скрипт командой
+```
+python main.py start_id end_id
+```
 - Обязательные параметры `start_id` и `end_id ` диапазон скачиваемых книг где `id`
 номер книги, Например `id = 1` https://tululu.org/b1/
 
