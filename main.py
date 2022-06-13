@@ -34,6 +34,11 @@ def get_comments(soup):
     return comments
 
 
+def get_genres(soup):
+    raw_genres = soup.find('span', class_='d_book').find_all('a')
+    genres = [i.text for i in raw_genres]
+    return genres
+
 def parse_book_page(id):
     """Функция для получения информации со страницы с книгой
     Args:
@@ -112,10 +117,13 @@ if __name__ == "__main__":
             #print("Ошибка при парсинге страницы",error)
             continue
         title = get_title(soup)
-        comments = get_comments(soup)
-        print(title,end = '\n\n')
-        for comment in comments:
-            print(comment)
+        genres = get_genres(soup)
+        #comments = get_comments(soup)
+        print(title,end = '\n')
+    #    for comment in comments:
+    #        print(comment)
+
+        print(genres,end ='\n\n')
     #         title = get_title(url_for_title)
     #         fname  = f"{id}.{title}"
     #         download_txt(url_for_txt,fname)
