@@ -5,6 +5,7 @@ from pathvalidate import sanitize_filename
 from bs4 import BeautifulSoup
 import argparse
 
+
 def check_for_redirect(response):
     if response.history:
         raise requests.HTTPError()
@@ -39,14 +40,17 @@ def get_genres(soup):
     genres = [i.text for i in raw_genres]
     return genres
 
+
 def parse_book_page(soup):
     return {
-        'genres' : get_genres(soup),
-        'comments' : get_comments(soup),
-        'image_url' : get_url_image(soup),
-        'title' : get_title(soup),
-        'author' : get_author(soup)
+        'genres': get_genres(soup),
+        'comments': get_comments(soup),
+        'image_url': get_url_image(soup),
+        'title': get_title(soup),
+        'author': get_author(soup)
     }
+
+
 def get_book_soup(id):
     """Функция для получения информации со страницы с книгой
     Args:
@@ -77,13 +81,14 @@ def download_image(url, filename=None, folder='images'):
         os.makedirs(folder)
     name = f"{sanitize_filename(filename)}"
     fullpath = os.path.join(folder, name)
+    print("Имя файла : ", filename)
+    print(f"Ссылка на картинку: {url}")
     if os.path.exists(fullpath):
-        print("Уже скачано")
+        print("Картинка уже скачана")
         return fullpath
     response = requests.get(url)
     response.raise_for_status()
-    print("имя файла : ", filename)
-    print(f"Ссылка на картинку: {url}")
+
     with open(fullpath, 'wb') as file:
         file.write(response.content)
     return fullpath
@@ -116,9 +121,11 @@ def download_txt(url, filename, folder='books/'):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='Скачиваем книги с start_id  до end_id с сайта https://tululu.org '
-        )
-    parser.add_argument('start_id', help='Номер книги с которого начинаем',type=int)
-    parser.add_argument('end_id', help='Номер на котором заканчиваем',type=int)
+    )
+    parser.add_argument(
+        'start_id', help='Номер книги с которого начинаем', type=int)
+    parser.add_argument(
+        'end_id', help='Номер на котором заканчиваем', type=int)
     args = parser.parse_args()
     for id in range(args.start_id, args.end_id):
         url_for_txt = "https://tululu.org/txt.php?id={}".format(id)
@@ -127,15 +134,15 @@ if __name__ == "__main__":
         except requests.HTTPError as error:
             continue
         book_info = parse_book_page(soup)
-        print(book_info['title'],end = '\n')
-        print(book_info['genres'],end ='\n\n')
+        print(book_info['title'], end='\n')
+        print(book_info['genres'], end='\n\n')
         title = book_info['title']
-        fname  = f"{id}.{title}"
+        fname = f"{id}.{title}"
         try:
-             download_txt(url_for_txt,fname)
+            download_txt(url_for_txt, fname)
         except requests.HTTPError as error:
-             continue
+            continue
         try:
-             download_image(book_info['image_url'])
+            download_image(book_info['image_url'])
         except requests.HTTPError as error:
-             continue
+            continue
