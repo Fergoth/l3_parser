@@ -137,18 +137,18 @@ if __name__ == "__main__":
         except requests.HTTPError as error:
             print("Некорректный id для книги" ,error)
             continue
-        book_info = parse_book_page(soup,book_id)
-        print(book_info['title'])
-        print(book_info['genres'])
-        title = book_info['title']
-        fname = f"{book_id}.{title}"
+        book_description = parse_book_page(soup,book_id)
+        print(book_description['title'])
+        print(book_description['genres'])
+        title = book_description['title']
+        filename_for_txt = f"{book_id}.{title}"
         try:
-            download_txt(book_id, fname)
+            download_txt(book_id, filename_for_txt)
         except requests.HTTPError as error:
             print('Книги нет на сайте',error)
             continue
         try:
-            download_image(book_info['image_url'])
+            download_image(book_description['image_url'])
         except requests.HTTPError as error:
             print("Ошибка загрузки картинки",error)
             continue
