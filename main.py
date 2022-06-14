@@ -95,7 +95,7 @@ def download_image(url, filename=None, folder='images'):
     return fullpath
 
 
-def download_txt(url, filename, folder='books/'):
+def download_txt(book_id, filename, folder='books/'):
     """Функция для скачивания текстовых файлов.
     Args:
         url (str): Cсылка на текст, который хочется скачать.
@@ -104,6 +104,8 @@ def download_txt(url, filename, folder='books/'):
     Returns:
         str: Путь до файла, куда сохранён текст.
     """
+    url = "https://tululu.org/txt.php"
+    payload = {'id' : book_id}
     if not os.path.exists(folder):
         os.makedirs(folder)
     name = f"{sanitize_filename(filename)}.txt"
@@ -111,7 +113,7 @@ def download_txt(url, filename, folder='books/'):
     if os.path.exists(fullpath):
         print("Книга уже загружена")
         return fullpath
-    response = requests.get(url)
+    response = requests.get(url, params=payload)
     response.raise_for_status()
     check_for_redirect(response)
     with open(fullpath, 'wb') as file:
@@ -127,9 +129,9 @@ if __name__ == "__main__":
         'start_id', help='Номер книги с которого начинаем', type=int)
     parser.add_argument(
         'end_id', help='Номер на котором заканчиваем', type=int)
-    args = parser.parse_args()    
+    args = parser.parse_args()
     for book_id in range(args.start_id, args.end_id):
-        url_for_txt = "https://tululu.org/txt.php?id={}".format(book_id)
+
         try:
             soup = get_book_soup(book_id)
         except requests.HTTPError as error:
@@ -138,9 +140,9 @@ if __name__ == "__main__":
         print(book_info['title'], end='\n')
         print(book_info['genres'], end='\n\n')
         title = book_info['title']
-        fname = f"{id}.{title}"
+        fname = f"{book_id}.{title}"
         try:
-            download_txt(url_for_txt, fname)
+            download_txt(book_id, fname)
         except requests.HTTPError as error:
             continue
         try:
