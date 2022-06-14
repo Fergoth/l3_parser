@@ -127,11 +127,11 @@ if __name__ == "__main__":
         'start_id', help='Номер книги с которого начинаем', type=int)
     parser.add_argument(
         'end_id', help='Номер на котором заканчиваем', type=int)
-    args = parser.parse_args()
-    for id in range(args.start_id, args.end_id):
-        url_for_txt = "https://tululu.org/txt.php?id={}".format(id)
+    args = parser.parse_args()    
+    for book_id in range(args.start_id, args.end_id):
+        url_for_txt = "https://tululu.org/txt.php?id={}".format(book_id)
         try:
-            soup = get_book_soup(id)
+            soup = get_book_soup(book_id)
         except requests.HTTPError as error:
             continue
         book_info = parse_book_page(soup)
