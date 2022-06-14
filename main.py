@@ -67,7 +67,7 @@ def get_book_soup(id):
     return soup
 
 
-def download_image(url, filename, folder='images'):
+def download_image(url, filename, folder='images/'):
     """Функция для скачивания картинок.
     Args:
         url (str): Cсылка на картинку, которую хочется скачать.
@@ -78,15 +78,10 @@ def download_image(url, filename, folder='images'):
     """
     os.makedirs(folder, exist_ok=True)
     name = f"{sanitize_filename(filename)}"
-    fullpath = os.path.join(folder, name)
-    print("Имя файла : ", filename)
-    print(f"Ссылка на картинку: {url}")
-    if os.path.exists(fullpath):
-        print("Картинка уже скачана")
-        return fullpath
     response = requests.get(url)
     response.raise_for_status()
-
+    name = f"{sanitize_filename(filename)}"
+    fullpath = os.path.join(folder, name)
     with open(fullpath, 'wb') as file:
         file.write(response.content)
     return fullpath
@@ -104,18 +99,24 @@ def download_txt(book_id, filename, folder='books/'):
     url = "https://tululu.org/txt.php"
     payload = {'id' : book_id}
     os.makedirs(folder, exist_ok=True)
-    name = f"{sanitize_filename(filename)}.txt"
-    fullpath = os.path.join(folder, name)
-    if os.path.exists(fullpath):
-        print("Книга уже загружена")
-        return fullpath
     response = requests.get(url, params=payload)
     response.raise_for_status()
     check_for_redirect(response)
+    name = f"{sanitize_filename(filename)}.txt"
+    fullpath = os.path.join(folder, name)
     with open(fullpath, 'wb') as file:
         file.write(response.content)
     return fullpath
 
+def book_txt_exist(filename, folder='books/'):
+    name = f"{sanitize_filename(filename)}.txt"
+    fullpath = os.path.join(folder, name)
+    return os.path.exists(fullpath)
+
+def image_exist(filename, folder='images/'):
+    name = f"{sanitize_filename(filename)}"
+    fullpath = os.path.join(folder, name)
+    return os.path.exists(fullpath)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -139,14 +140,16 @@ if __name__ == "__main__":
         title = book_description['title']
         filename_for_txt = f"{book_id}.{title}"
         try:
-            download_txt(book_id, filename_for_txt)
+            if not book_txt_exist(filename_for_txt):
+                download_txt(book_id, filename_for_txt)
         except requests.HTTPError as error:
             print('Книги нет на сайте',error)
             continue
         url_for_image = book_description['image_url']
         image_filename = unquote(urlsplit(url_for_image).path).split('/')[-1]
         try:
-            download_image(url_for_image,image_filename)
+            if not image_exist(image_filename):
+                download_image(url_for_image,image_filename)
         except requests.HTTPError as error:
             print("Ошибка загрузки картинки",error)
             continue
