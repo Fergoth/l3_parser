@@ -24,9 +24,9 @@ def get_author(soup):
     return author
 
 
-def get_url_image(soup):
+def get_url_image(soup, book_id):
     image_url = soup.find('div', class_='bookimage').find('img')['src']
-    image_full_url = urljoin("https://tululu.org/", image_url)
+    image_full_url = urljoin('https://tululu.org/b{}/'.format(book_id), image_url)
     return image_full_url
 
 
@@ -42,11 +42,11 @@ def get_genres(soup):
     return genres
 
 
-def parse_book_page(soup):
+def parse_book_page(soup, book_id):
     return {
         'genres': get_genres(soup),
         'comments': get_comments(soup),
-        'image_url': get_url_image(soup),
+        'image_url': get_url_image(soup, book_id),
         'title': get_title(soup),
         'author': get_author(soup)
     }
@@ -137,7 +137,7 @@ if __name__ == "__main__":
         except requests.HTTPError as error:
             print("Некорректный id для книги" ,error)
             continue
-        book_info = parse_book_page(soup)
+        book_info = parse_book_page(soup,book_id)
         print(book_info['title'])
         print(book_info['genres'])
         title = book_info['title']
