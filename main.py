@@ -131,21 +131,24 @@ if __name__ == "__main__":
         'end_id', help='Номер на котором заканчиваем', type=int)
     args = parser.parse_args()
     for book_id in range(args.start_id, args.end_id):
-
+        print('\n')
         try:
             soup = get_book_soup(book_id)
         except requests.HTTPError as error:
+            print("Некорректный id для книги" ,error)
             continue
         book_info = parse_book_page(soup)
-        print(book_info['title'], end='\n')
-        print(book_info['genres'], end='\n\n')
+        print(book_info['title'])
+        print(book_info['genres'])
         title = book_info['title']
         fname = f"{book_id}.{title}"
         try:
             download_txt(book_id, fname)
         except requests.HTTPError as error:
+            print('Книги нет на сайте',error)
             continue
         try:
             download_image(book_info['image_url'])
         except requests.HTTPError as error:
+            print("Ошибка загрузки картинки",error)
             continue
