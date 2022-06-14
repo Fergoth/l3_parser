@@ -78,8 +78,7 @@ def download_image(url, filename=None, folder='images'):
     """
     if not filename:
         filename = unquote(urlsplit(url).path).split('/')[-1]
-    if not os.path.exists(folder):
-        os.makedirs(folder)
+    os.makedirs(folder, exist_ok=True)
     name = f"{sanitize_filename(filename)}"
     fullpath = os.path.join(folder, name)
     print("Имя файла : ", filename)
@@ -106,8 +105,7 @@ def download_txt(book_id, filename, folder='books/'):
     """
     url = "https://tululu.org/txt.php"
     payload = {'id' : book_id}
-    if not os.path.exists(folder):
-        os.makedirs(folder)
+    os.makedirs(folder, exist_ok=True)
     name = f"{sanitize_filename(filename)}.txt"
     fullpath = os.path.join(folder, name)
     if os.path.exists(fullpath):
