@@ -1,5 +1,6 @@
 import argparse
 import os
+import time
 from urllib.parse import unquote, urlsplit, urljoin
 
 from bs4 import BeautifulSoup
@@ -127,29 +128,39 @@ if __name__ == "__main__":
     parser.add_argument(
         'end_id', help='Номер на котором заканчиваем', type=int)
     args = parser.parse_args()
-    for book_id in range(args.start_id, args.end_id):
-        print('\n')
+    book_id = args.start_id
+    while (book_id < args.end_id):
         try:
-            soup = get_book_soup(book_id)
-        except requests.HTTPError as error:
-            print("Некорректный id для книги" ,error)
-            continue
-        book_description = parse_book_page(soup,book_id)
-        print(book_description['title'])
-        print(book_description['genres'])
-        title = book_description['title']
-        filename_for_txt = f"{book_id}.{title}"
-        try:
-            if not book_txt_exist(filename_for_txt):
-                download_txt(book_id, filename_for_txt)
-        except requests.HTTPError as error:
-            print('Книги нет на сайте',error)
-            continue
-        url_for_image = book_description['image_url']
-        image_filename = unquote(urlsplit(url_for_image).path).split('/')[-1]
-        try:
-            if not image_exist(image_filename):
-                download_image(url_for_image,image_filename)
-        except requests.HTTPError as error:
-            print("Ошибка загрузки картинки",error)
+            print('\n')
+            try:
+                soup = get_book_soup(book_id)
+            except requests.HTTPError as error:
+                print("Некорректный id для книги" ,error)
+                book_id +=1
+                continue
+            book_description = parse_book_page(soup,book_id)
+            print(book_description['title'])
+            print(book_description['genres'])
+            title = book_description['title']
+            filename_for_txt = f"{book_id}.{title}"
+            try:
+                if not book_txt_exist(filename_for_txt):
+                    download_txt(book_id, filename_for_txt)
+            except requests.HTTPError as error:
+                print('Книги нет на сайте',error)
+                book_id +=1
+                continue
+            url_for_image = book_description['image_url']
+            image_filename = unquote(urlsplit(url_for_image).path).split('/')[-1]
+            try:
+                if not image_exist(image_filename):
+                    download_image(url_for_image,image_filename)
+            except requests.HTTPError as error:
+                print("Ошибка загрузки картинки",error)
+                book_id +=1
+                continue
+            book_id +=1
+        except requests.exceptions.ConnectionError as error:
+            print('Проблемы с соединением ожидаем 4 секунды', error)
+            time.sleep(4)
             continue
