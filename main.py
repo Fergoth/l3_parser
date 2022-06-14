@@ -67,7 +67,7 @@ def get_book_soup(id):
     return soup
 
 
-def download_image(url, filename=None, folder='images'):
+def download_image(url, filename, folder='images'):
     """Функция для скачивания картинок.
     Args:
         url (str): Cсылка на картинку, которую хочется скачать.
@@ -76,8 +76,6 @@ def download_image(url, filename=None, folder='images'):
     Returns:
         str: Путь до файла, куда сохранена картинка.
     """
-    if not filename:
-        filename = unquote(urlsplit(url).path).split('/')[-1]
     os.makedirs(folder, exist_ok=True)
     name = f"{sanitize_filename(filename)}"
     fullpath = os.path.join(folder, name)
@@ -145,8 +143,10 @@ if __name__ == "__main__":
         except requests.HTTPError as error:
             print('Книги нет на сайте',error)
             continue
+        url_for_image = book_description['image_url']
+        image_filename = unquote(urlsplit(url_for_image).path).split('/')[-1]
         try:
-            download_image(book_description['image_url'])
+            download_image(url_for_image,image_filename)
         except requests.HTTPError as error:
             print("Ошибка загрузки картинки",error)
             continue
