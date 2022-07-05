@@ -131,7 +131,6 @@ if __name__ == "__main__":
     book_id = args.start_id
     while (book_id < args.end_id):
         try:
-            print('\n')
             try:
                 soup = get_book_soup(book_id)
             except requests.HTTPError as error:
@@ -139,8 +138,6 @@ if __name__ == "__main__":
                 book_id +=1
                 continue
             book_description = parse_book_page(soup,book_id)
-            print(book_description['title'])
-            print(book_description['genres'])
             title = book_description['title']
             filename_for_txt = f"{book_id}.{title}"
             try:
