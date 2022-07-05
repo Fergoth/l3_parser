@@ -33,13 +33,13 @@ def get_url_image(soup, book_id):
 
 def get_comments(soup):
     raw_comments = soup.find_all('div', class_='texts')
-    comments = [i.find('span').text for i in raw_comments]
+    comments = [raw_comment.find('span').text for raw_comment in raw_comments]
     return comments
 
 
 def get_genres(soup):
     raw_genres = soup.find('span', class_='d_book').find_all('a')
-    genres = [i.text for i in raw_genres]
+    genres = [raw_genre.text for raw_genre in raw_genres]
     return genres
 
 
