@@ -27,7 +27,8 @@ def get_author(soup):
 
 def get_url_image(soup, book_id):
     image_url = soup.find('div', class_='bookimage').find('img')['src']
-    image_full_url = urljoin('https://tululu.org/b{}/'.format(book_id), image_url)
+    image_full_url = urljoin(
+        'https://tululu.org/b{}/'.format(book_id), image_url)
     return image_full_url
 
 
@@ -68,56 +69,48 @@ def get_book_soup(id):
     return soup
 
 
-def download_image(url, filename, folder='images/'):
+def download_image(url, fullpath):
     """Функция для скачивания картинок.
     Args:
         url (str): Cсылка на картинку, которую хочется скачать.
-        filename (str): Имя файла, с которым сохранять.
-        folder (str): Папка, куда сохранять.
+        fullpath (str): Полный куда сохраняем файл.
     Returns:
         str: Путь до файла, куда сохранена картинка.
     """
-    os.makedirs(folder, exist_ok=True)
-    name = f"{sanitize_filename(filename)}"
+
     response = requests.get(url)
     response.raise_for_status()
-    name = f"{sanitize_filename(filename)}"
-    fullpath = os.path.join(folder, name)
     with open(fullpath, 'wb') as file:
         file.write(response.content)
     return fullpath
 
 
-def download_txt(book_id, filename, folder='books/'):
+def download_txt(book_id, fullpath):
     """Функция для скачивания текстовых файлов.
     Args:
         url (str): Cсылка на текст, который хочется скачать.
-        filename (str): Имя файла, с которым сохранять.
-        folder (str): Папка, куда сохранять.
+        fullpath (str): Полный куда сохраняем файл.
     Returns:
         str: Путь до файла, куда сохранён текст.
     """
     url = "https://tululu.org/txt.php"
-    payload = {'id' : book_id}
-    os.makedirs(folder, exist_ok=True)
+    payload = {'id': book_id}
     response = requests.get(url, params=payload)
     response.raise_for_status()
     check_for_redirect(response)
-    name = f"{sanitize_filename(filename)}.txt"
-    fullpath = os.path.join(folder, name)
     with open(fullpath, 'wb') as file:
         file.write(response.content)
     return fullpath
 
-def book_txt_exist(filename, folder='books/'):
-    name = f"{sanitize_filename(filename)}.txt"
-    fullpath = os.path.join(folder, name)
-    return os.path.exists(fullpath)
 
-def image_exist(filename, folder='images/'):
+def file_full_path(filename, folder):
+    os.makedirs(folder, exist_ok=True)
     name = f"{sanitize_filename(filename)}"
     fullpath = os.path.join(folder, name)
-    return os.path.exists(fullpath)
+    if os.path.exists(fullpath):
+        return None
+    return fullpath
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -134,29 +127,32 @@ if __name__ == "__main__":
             try:
                 soup = get_book_soup(book_id)
             except requests.HTTPError as error:
-                print("Некорректный id для книги" ,error)
-                book_id +=1
+                print(f"Некорректный id для книги: {book_id}", error)
+                book_id += 1
                 continue
-            book_description = parse_book_page(soup,book_id)
+            book_description = parse_book_page(soup, book_id)
             title = book_description['title']
-            filename_for_txt = f"{book_id}.{title}"
+            filename_for_txt = f"{book_id}.{title}.txt"
             try:
-                if not book_txt_exist(filename_for_txt):
-                    download_txt(book_id, filename_for_txt)
+                fullpath_for_txt = file_full_path(filename_for_txt, 'books/')
+                if fullpath_for_txt:
+                    download_txt(book_id, fullpath_for_txt)
             except requests.HTTPError as error:
-                print('Книги нет на сайте',error)
-                book_id +=1
+                print('Книги нет на сайте id: {book_id}', error)
+                book_id += 1
                 continue
             url_for_image = book_description['image_url']
-            image_filename = unquote(urlsplit(url_for_image).path).split('/')[-1]
+            image_filename = unquote(
+                urlsplit(url_for_image).path).split('/')[-1]
             try:
-                if not image_exist(image_filename):
-                    download_image(url_for_image,image_filename)
+                fullpath_for_image = file_full_path(image_filename, 'images/')
+                if fullpath_for_image:
+                    download_image(url_for_image, fullpath_for_image)
             except requests.HTTPError as error:
-                print("Ошибка загрузки картинки",error)
-                book_id +=1
+                print("Ошибка загрузки картинки", error)
+                book_id += 1
                 continue
-            book_id +=1
+            book_id += 1
         except requests.exceptions.ConnectionError as error:
             print('Проблемы с соединением ожидаем 4 секунды', error)
             time.sleep(4)
