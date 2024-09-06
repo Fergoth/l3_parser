@@ -138,7 +138,7 @@ if __name__ == "__main__":
                 if fullpath_for_txt:
                     download_txt(book_id, fullpath_for_txt)
             except requests.HTTPError as error:
-                print('Книги нет на сайте id: {book_id}', error)
+                print(f'Книги нет на сайте id: {book_id}', error)
                 book_id += 1
                 continue
             url_for_image = book_description['image_url']
