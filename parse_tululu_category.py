@@ -19,12 +19,13 @@ def get_fantastic_books_soup(page: int) -> BeautifulSoup:
 
 def get_books_ids_by_page(page_num : int, base_url: str)-> list[str]:
     soup = get_fantastic_books_soup(page_num)
-    books_info = soup.find_all('table', class_='d_book')
-    return [book.find('a')['href'][2:-1] for book in books_info]
+    selector = 'table.d_book'
+    books_info = soup.select(selector)
+    return [book.select_one('a')['href'][2:-1] for book in books_info]
 
 def save_books_description(description: list,filename = 'description.json'):
     with open(filename,'w',encoding='UTF-8') as f:
-        f.write(json.dumps(description,ensure_ascii=False))
+        f.write(json.dumps(description,indent=2, ensure_ascii=False))
 
 def main(pages:int):
     base_url = 'https://tululu.org'
@@ -47,7 +48,6 @@ def main(pages:int):
                 book_description['book_path'] = fullpath_for_txt
                 if fullpath_for_txt:
                     download_txt(book_id, fullpath_for_txt)
-                books_description.append(book_description)
             except requests.HTTPError as error:
                 print(f'Книги нет на сайте id: {book_id}', error)
                 continue
@@ -58,9 +58,11 @@ def main(pages:int):
                 fullpath_for_image = file_full_path(image_filename, 'images/')
                 if fullpath_for_image:
                     download_image(url_for_image, fullpath_for_image)
+                book_description['image_path'] = fullpath_for_image
             except requests.HTTPError as error:
                 print("Ошибка загрузки картинки", error)
                 continue
+            books_description.append(book_description)
         except requests.exceptions.ConnectionError as error:
             print('Проблемы с соединением ожидаем 4 секунды', error)
             time.sleep(4)

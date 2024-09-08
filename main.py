@@ -14,32 +14,32 @@ def check_for_redirect(response):
 
 
 def get_title(soup):
-    h1 = soup.find('h1').text
+    h1 = soup.select_one('h1').text
     title, _ = map(lambda x: x.strip(), h1.split('::'))
     return title
 
 
 def get_author(soup):
-    h1 = soup.find('h1').text
+    h1 = soup.select_one('h1').text
     _, author = map(lambda x: x.strip(), h1.split('::'))
     return author
 
 
 def get_url_image(soup, book_id):
-    image_url = soup.find('div', class_='bookimage').find('img')['src']
+    image_url = soup.select_one('div.bookimage img')['src']
     image_full_url = urljoin(
         'https://tululu.org/b{}/'.format(book_id), image_url)
     return image_full_url
 
 
 def get_comments(soup):
-    raw_comments = soup.find_all('div', class_='texts')
-    comments = [raw_comment.find('span').text for raw_comment in raw_comments]
+    raw_comments = soup.select('div.texts')
+    comments = [raw_comment.select_one('span').text for raw_comment in raw_comments]
     return comments
 
 
 def get_genres(soup):
-    raw_genres = soup.find('span', class_='d_book').find_all('a')
+    raw_genres = soup.select('span.d_book a')
     genres = [raw_genre.text for raw_genre in raw_genres]
     return genres
 
