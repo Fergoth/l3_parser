@@ -12,7 +12,7 @@
 ```
 pip install -r requirements.txt
 ```
-- Запустите скрипт командой
+- Запустите скрипт для скачивания книг по айди командой
 ```
 python main.py start_id end_id
 ```
@@ -22,6 +22,29 @@ python main.py start_id end_id
 После чего в папке откуда запускается скрипт, у вас появится две папки `\books` и `\images` в которые загрузятся
 книги и обложки к книгам соответственно
 
+Так же доступен  скрипт для постраничного скачивания книг с фантастикой
+https://tululu.org/l55/
+Помимо картинок и текста добавлено описание скачанных книг
+```
+python parse_tululu_category.py
+```
+
+Доступны следующие параметры для скрипта
+- --start_page --end_page, Скачивают книги cо страниц [start_page;end_page).
+Значения по умолчанию 1,2
+```
+python parse_tululu_category.py --start_page 10 --end_page 11
+```
+- --dest_folder.(по умолчанию downloaded) Позволяет указать директорию в которой создадутся директории для картинок,txt, и описания книг.
+```
+python parse_tululu_category.py --dest_folder some_folder
+```
+- --skip_imgs. Флаг отключающий скачивание картинок.
+- --skip_txt. Флаг отключающий скачивание книг.
+Пример скрипта который скачает только описания книг
+```
+python parse_tululu_category.py --skip_imgs --skip_txt
+```
 
 ## Цели проекта
 
