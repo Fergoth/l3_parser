@@ -86,11 +86,13 @@ def main(start_page:int, end_page:int,folder:str,skip_txt:bool,skip_img:bool):
     save_books_description(books_description, Path(folder,'description.json'))
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("Скрипт для постраничного скачивания книг фантастики")
-    parser.add_argument("--start_page", type=int,default=10,help='Первая  страница для скачивания')
-    parser.add_argument("--end_page", type=int, default=11, help='Последняя страница для скачивания')
+    parser.add_argument("--start_page", type=int,default=1,help='Первая  страница для скачивания')
+    parser.add_argument("--end_page", type=int, default=2, help='Последняя страница для скачивания')
     parser.add_argument("--dest_folder", type=str, default='downloaded', help='Путь к каталогу для скачиваемых материалов')
     parser.add_argument("--skip_imgs", action="store_true")
     parser.add_argument("--skip_txt", action="store_true")
     args = parser.parse_args()
+    if not os.path.exists(args.dest_folder,):
+        os.makedirs(args.dest_folder,)
     main(args.start_page, args.end_page,args.dest_folder,args.skip_txt,args.skip_imgs)
 
