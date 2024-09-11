@@ -54,14 +54,15 @@ def parse_book_page(soup, book_id):
     }
 
 
-def get_book_soup(id):
+def get_book_soup(url):
     """Функция для получения информации со страницы с книгой
     Args:
-        id(int) : id номер книги на сайте tululu
+        book_id(int) : id номер книги на сайте tululu
     Returns:
         soup(BeautifulSoup) : объект BeautifulSoup соответствующий странице с книгой
     """
-    url = 'https://tululu.org/b{}/'.format(id)
+    base_url = 'https://tululu.org/'
+    url = 'https://tululu.org/b{}/'.format(book_id)
     response = requests.get(url)
     response.raise_for_status()
     check_for_redirect(response)
@@ -125,7 +126,7 @@ if __name__ == "__main__":
     while (book_id < args.end_id):
         try:
             try:
-                soup = get_book_soup(book_id)
+                soup = get_book_soup('https://tululu.org/b{}/'.format(book_id))
             except requests.HTTPError as error:
                 print(f"Некорректный id для книги: {book_id}", error)
                 book_id += 1

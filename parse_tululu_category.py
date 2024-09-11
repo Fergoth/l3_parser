@@ -6,21 +6,13 @@ from urllib.parse import urljoin, unquote, urlsplit
 
 import argparse
 import requests
-from bs4 import BeautifulSoup
 
 from download_books_by_id import get_book_soup, parse_book_page, file_full_path, download_txt, download_image
 
 
-def get_fantastic_books_soup(page: int) -> BeautifulSoup:
+def get_books_ids_by_page(page_num: int) -> list[str]:
     base_url = "https://tululu.org/l55/"
-    url = urljoin(base_url, str(page))
-    response = requests.get(url)
-    response.raise_for_status()
-    return BeautifulSoup(response.text, 'lxml')
-
-
-def get_books_ids_by_page(page_num: int, base_url: str) -> list[str]:
-    soup = get_fantastic_books_soup(page_num)
+    soup = get_book_soup(urljoin(base_url, str(page_num)))
     selector = 'table.d_book'
     books_info = soup.select(selector)
     return [book.select_one('a')['href'][2:-1] for book in books_info]
@@ -56,7 +48,7 @@ def main():
     for book_id in book_ids:
         try:
             try:
-                soup = get_book_soup(book_id)
+                soup = get_book_soup('https://tululu.org/b{}/'.format(book_id))
             except requests.HTTPError as error:
                 print(f"Некорректный id для книги: {book_id}", error)
                 continue
