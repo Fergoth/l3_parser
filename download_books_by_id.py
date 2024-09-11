@@ -3,7 +3,7 @@ import time
 from urllib.parse import unquote, urlsplit
 
 import requests
-from downloaded_tools import get_book_soup, parse_book_page, file_full_path, download_txt, download_image
+from downloaded_tools import get_book_soup, parse_book_page, generate_file_full_path, download_txt, download_image
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -18,7 +18,7 @@ if __name__ == "__main__":
     while book_id < args.end_id:
         try:
             try:
-                soup = get_book_soup('https://tululu.org/b{}/'.format(book_id))
+                soup = get_book_soup(f'https://tululu.org/b{book_id}/')
             except requests.HTTPError as error:
                 print(f"Некорректный id для книги: {book_id}", error)
                 book_id += 1
@@ -27,7 +27,7 @@ if __name__ == "__main__":
             title = book_description['title']
             filename_for_txt = f"{book_id}.{title}.txt"
             try:
-                fullpath_for_txt = file_full_path(filename_for_txt, 'books/')
+                fullpath_for_txt = generate_file_full_path(filename_for_txt, 'books/')
                 if fullpath_for_txt:
                     download_txt(book_id, fullpath_for_txt)
             except requests.HTTPError as error:
@@ -38,7 +38,7 @@ if __name__ == "__main__":
             image_filename = unquote(
                 urlsplit(url_for_image).path).split('/')[-1]
             try:
-                fullpath_for_image = file_full_path(image_filename, 'images/')
+                fullpath_for_image = generate_file_full_path(image_filename, 'images/')
                 if fullpath_for_image:
                     download_image(url_for_image, fullpath_for_image)
             except requests.HTTPError as error:

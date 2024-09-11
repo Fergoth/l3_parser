@@ -1,5 +1,6 @@
 import json
 import os.path
+import sys
 import time
 from pathlib import Path
 from urllib.parse import urljoin, unquote, urlsplit
@@ -8,13 +9,13 @@ import argparse
 import requests
 from bs4 import BeautifulSoup
 
-from downloaded_tools import get_book_soup, parse_book_page, file_full_path, download_txt, download_image
+from downloaded_tools import get_book_soup, parse_book_page, generate_file_full_path, download_txt, download_image
 
 
 def get_books_ids_by_page(soup: BeautifulSoup) -> list[str]:
     selector = 'table.d_book'
-    books_info = soup.select(selector)
-    return [book.select_one('a')['href'][2:-1] for book in books_info]
+    books = soup.select(selector)
+    return [book.select_one('a')['href'][2:-1] for book in books]
 
 
 def save_books_description(description: list, filename=Path('description.json')):
@@ -42,13 +43,21 @@ def main():
     book_ids = []
     base_url = "https://tululu.org/l55/"
     for page_num in range(args.start_page, args.end_page):
-        soup = get_book_soup(urljoin(base_url, str(page_num)))
-        book_ids += get_books_ids_by_page(soup)
+        try:
+            soup = get_book_soup(urljoin(base_url, str(page_num)))
+            book_ids += get_books_ids_by_page(soup)
+        except requests.exceptions.ConnectionError as error:
+            print('Проблемы с соединением ожидаем 4 секунды', error, file=sys.stderr)
+            time.sleep(4)
+            continue
+        except  requests.HTTPError as error:
+            print('Неверный url', error, file=sys.stderr)
+            continue
     books_description = get_book_description()
     for book_id in book_ids:
         try:
             try:
-                soup = get_book_soup('https://tululu.org/b{}/'.format(book_id))
+                soup = get_book_soup(f'https://tululu.org/b{book_id}/')
             except requests.HTTPError as error:
                 print(f"Некорректный id для книги: {book_id}", error)
                 continue
@@ -57,7 +66,7 @@ def main():
                 title = book_description['title']
                 filename_for_txt = f"{book_id}.{title}.txt"
                 try:
-                    fullpath_for_txt = file_full_path(filename_for_txt, str(Path(args.folder, 'books/')))
+                    fullpath_for_txt = generate_file_full_path(filename_for_txt, str(Path(args.folder, 'books/')))
                     book_description['book_path'] = fullpath_for_txt
                     if fullpath_for_txt:
                         download_txt(book_id, fullpath_for_txt)
@@ -71,7 +80,7 @@ def main():
                 image_filename = unquote(
                     urlsplit(url_for_image).path).split('/')[-1]
                 try:
-                    fullpath_for_image = file_full_path(image_filename, str(Path(args.folder, 'images/')))
+                    fullpath_for_image = generate_file_full_path(image_filename, str(Path(args.folder, 'images/')))
                     if fullpath_for_image:
                         download_image(url_for_image, fullpath_for_image)
                     book_description['image_path'] = fullpath_for_image or str(Path(args.folder, 'images', 'nopic.gif'))
@@ -85,7 +94,7 @@ def main():
             print('Проблемы с соединением ожидаем 4 секунды', error)
             time.sleep(4)
             continue
-    save_books_description(books_description, Path(args.folder, 'description.json'))
+    save_books_description(books_description, Path(args.dest_folder, 'description.json'))
 
 
 if __name__ == "__main__":

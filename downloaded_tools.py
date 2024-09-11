@@ -96,7 +96,7 @@ def download_txt(book_id, fullpath):
     return fullpath
 
 
-def file_full_path(filename, folder):
+def generate_file_full_path(filename, folder):
     os.makedirs(folder, exist_ok=True)
     name = f"{sanitize_filename(filename)}"
     fullpath = os.path.join(folder, name)
