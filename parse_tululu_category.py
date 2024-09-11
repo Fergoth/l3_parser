@@ -6,13 +6,12 @@ from urllib.parse import urljoin, unquote, urlsplit
 
 import argparse
 import requests
+from bs4 import BeautifulSoup
 
 from downloaded_tools import get_book_soup, parse_book_page, file_full_path, download_txt, download_image
 
 
-def get_books_ids_by_page(page_num: int) -> list[str]:
-    base_url = "https://tululu.org/l55/"
-    soup = get_book_soup(urljoin(base_url, str(page_num)))
+def get_books_ids_by_page(soup: BeautifulSoup) -> list[str]:
     selector = 'table.d_book'
     books_info = soup.select(selector)
     return [book.select_one('a')['href'][2:-1] for book in books_info]
@@ -41,8 +40,10 @@ def main():
     args = parser.parse_args()
     os.makedirs(args.dest_folder, exist_ok=True)
     book_ids = []
+    base_url = "https://tululu.org/l55/"
     for page_num in range(args.start_page, args.end_page):
-        book_ids += get_books_ids_by_page(page_num)
+        soup = get_book_soup(urljoin(base_url, str(page_num)))
+        book_ids += get_books_ids_by_page(soup)
     books_description = get_book_description()
     for book_id in book_ids:
         try:
