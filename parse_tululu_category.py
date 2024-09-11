@@ -7,7 +7,7 @@ from urllib.parse import urljoin, unquote, urlsplit
 import argparse
 import requests
 
-from download_books_by_id import get_book_soup, parse_book_page, file_full_path, download_txt, download_image
+from downloaded_tools import get_book_soup, parse_book_page, file_full_path, download_txt, download_image
 
 
 def get_books_ids_by_page(page_num: int) -> list[str]:
@@ -40,10 +40,9 @@ def main():
     parser.add_argument("--skip_txt", action="store_true")
     args = parser.parse_args()
     os.makedirs(args.dest_folder, exist_ok=True)
-    base_url = 'https://tululu.org'
     book_ids = []
     for page_num in range(args.start_page, args.end_page):
-        book_ids += get_books_ids_by_page(page_num, base_url)
+        book_ids += get_books_ids_by_page(page_num)
     books_description = get_book_description()
     for book_id in book_ids:
         try:

@@ -1,117 +1,9 @@
 import argparse
-import os
 import time
-from urllib.parse import unquote, urlsplit, urljoin
+from urllib.parse import unquote, urlsplit
 
-from bs4 import BeautifulSoup
 import requests
-from pathvalidate import sanitize_filename
-
-
-def check_for_redirect(response):
-    if response.history:
-        raise requests.HTTPError()
-
-
-def get_title(soup):
-    h1 = soup.select_one('h1').text
-    title, _ = map(lambda x: x.strip(), h1.split('::'))
-    return title
-
-
-def get_author(soup):
-    h1 = soup.select_one('h1').text
-    _, author = map(lambda x: x.strip(), h1.split('::'))
-    return author
-
-
-def get_url_image(soup, book_id):
-    image_url = soup.select_one('div.bookimage img')['src']
-    image_full_url = urljoin(
-        'https://tululu.org/b{}/'.format(book_id), image_url)
-    return image_full_url
-
-
-def get_comments(soup):
-    raw_comments = soup.select('div.texts')
-    comments = [raw_comment.select_one('span').text for raw_comment in raw_comments]
-    return comments
-
-
-def get_genres(soup):
-    raw_genres = soup.select('span.d_book a')
-    genres = [raw_genre.text for raw_genre in raw_genres]
-    return genres
-
-
-def parse_book_page(soup, book_id):
-    return {
-        'genres': get_genres(soup),
-        'comments': get_comments(soup),
-        'image_url': get_url_image(soup, book_id),
-        'title': get_title(soup),
-        'author': get_author(soup)
-    }
-
-
-def get_book_soup(url):
-    """Функция для получения информации со страницы с книгой
-    Args:
-        book_id(int) : id номер книги на сайте tululu
-    Returns:
-        soup(BeautifulSoup) : объект BeautifulSoup соответствующий странице с книгой
-    """
-    base_url = 'https://tululu.org/'
-    url = 'https://tululu.org/b{}/'.format(book_id)
-    response = requests.get(url)
-    response.raise_for_status()
-    check_for_redirect(response)
-    soup = BeautifulSoup(response.text, 'lxml')
-    return soup
-
-
-def download_image(url, fullpath):
-    """Функция для скачивания картинок.
-    Args:
-        url (str): Cсылка на картинку, которую хочется скачать.
-        fullpath (str): Полный куда сохраняем файл.
-    Returns:
-        str: Путь до файла, куда сохранена картинка.
-    """
-
-    response = requests.get(url)
-    response.raise_for_status()
-    with open(fullpath, 'wb') as file:
-        file.write(response.content)
-    return fullpath
-
-
-def download_txt(book_id, fullpath):
-    """Функция для скачивания текстовых файлов.
-    Args:
-        url (str): Cсылка на текст, который хочется скачать.
-        fullpath (str): Полный куда сохраняем файл.
-    Returns:
-        str: Путь до файла, куда сохранён текст.
-    """
-    url = "https://tululu.org/txt.php"
-    payload = {'id': book_id}
-    response = requests.get(url, params=payload)
-    response.raise_for_status()
-    check_for_redirect(response)
-    with open(fullpath, 'wb') as file:
-        file.write(response.content)
-    return fullpath
-
-
-def file_full_path(filename, folder):
-    os.makedirs(folder, exist_ok=True)
-    name = f"{sanitize_filename(filename)}"
-    fullpath = os.path.join(folder, name)
-    if os.path.exists(fullpath):
-        return None
-    return fullpath
-
+from downloaded_tools import get_book_soup, parse_book_page, file_full_path, download_txt, download_image
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -123,7 +15,7 @@ if __name__ == "__main__":
         'end_id', help='Номер на котором заканчиваем', type=int)
     args = parser.parse_args()
     book_id = args.start_id
-    while (book_id < args.end_id):
+    while book_id < args.end_id:
         try:
             try:
                 soup = get_book_soup('https://tululu.org/b{}/'.format(book_id))
