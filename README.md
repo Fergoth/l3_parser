@@ -14,7 +14,7 @@ pip install -r requirements.txt
 ```
 - Запустите скрипт для скачивания книг по айди командой
 ```
-python download_books_by_id.py start_id end_id
+python download_books_by_id.py 5 10
 ```
 - Обязательные параметры `start_id` и `end_id ` диапазон скачиваемых книг(`end_id` не включая), где `id`
 номер книг. Например `id = 1` https://tululu.org/b1/
@@ -35,15 +35,15 @@ python parse_tululu_category.py
 ```
 python parse_tululu_category.py --start_page 10 --end_page 11
 ```
-- --dest_folder.(по умолчанию downloaded) Позволяет указать директорию в которой создадутся директории для картинок,txt, и описания книг.
+- --folder.(по умолчанию downloaded) Позволяет указать директорию в которой создадутся директории для картинок,txt, и описания книг.
 ```
-python parse_tululu_category.py --dest_folder some_folder
+python parse_tululu_category.py --folder some_folder
 ```
 - --skip_imgs. Флаг отключающий скачивание картинок.
 - --skip_txt. Флаг отключающий скачивание книг.
 Пример скрипта который скачает только описания книг
 ```
-python parse_tululu_category.py --skip_imgs --skip_txt
+python parse_tululu_category.py --skip_img --skip_txt
 ```
 
 ## Цели проекта

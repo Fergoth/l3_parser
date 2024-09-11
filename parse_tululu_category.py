@@ -23,7 +23,7 @@ def save_books_description(description: list, filename=Path('description.json'))
         f.write(json.dumps(description, indent=2, ensure_ascii=False))
 
 
-def get_book_description(description_filename='description.json'):
+def get_book_descriptions(description_filename='description.json'):
     if os.path.isfile(description_filename):
         with open(description_filename, 'r', encoding='UTF-8') as f:
             return json.load(f)
@@ -34,12 +34,12 @@ def main():
     parser = argparse.ArgumentParser("Скрипт для постраничного скачивания книг фантастики")
     parser.add_argument("--start_page", type=int, default=1, help='Первая  страница для скачивания')
     parser.add_argument("--end_page", type=int, default=2, help='Последняя страница для скачивания')
-    parser.add_argument("--dest_folder", type=str, default='downloaded',
+    parser.add_argument("--folder", type=str, default='downloaded',
                         help='Путь к каталогу для скачиваемых материалов')
-    parser.add_argument("--skip_imgs", action="store_true")
+    parser.add_argument("--skip_img", action="store_true")
     parser.add_argument("--skip_txt", action="store_true")
     args = parser.parse_args()
-    os.makedirs(args.dest_folder, exist_ok=True)
+    os.makedirs(args.folder, exist_ok=True)
     book_ids = []
     base_url = "https://tululu.org/l55/"
     for page_num in range(args.start_page, args.end_page):
@@ -53,7 +53,7 @@ def main():
         except  requests.HTTPError as error:
             print('Неверный url', error, file=sys.stderr)
             continue
-    books_description = get_book_description()
+    book_descriptions = get_book_descriptions()
     for book_id in book_ids:
         try:
             try:
@@ -89,12 +89,12 @@ def main():
                     continue
             else:
                 book_description['image_path'] = None
-            books_description.append(book_description)
+            book_descriptions.append(book_description)
         except requests.exceptions.ConnectionError as error:
             print('Проблемы с соединением ожидаем 4 секунды', error)
             time.sleep(4)
             continue
-    save_books_description(books_description, Path(args.dest_folder, 'description.json'))
+    save_books_description(book_descriptions, Path(args.folder, 'description.json'))
 
 
 if __name__ == "__main__":
