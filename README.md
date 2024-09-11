@@ -14,7 +14,7 @@ pip install -r requirements.txt
 ```
 - Запустите скрипт для скачивания книг по айди командой
 ```
-python main.py start_id end_id
+python download_books_by_id.py start_id end_id
 ```
 - Обязательные параметры `start_id` и `end_id ` диапазон скачиваемых книг(`end_id` не включая), где `id`
 номер книг. Например `id = 1` https://tululu.org/b1/

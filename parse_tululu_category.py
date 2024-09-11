@@ -8,7 +8,7 @@ import argparse
 import requests
 from bs4 import BeautifulSoup
 
-from main import get_book_soup, parse_book_page, file_full_path, download_txt, download_image
+from download_books_by_id import get_book_soup, parse_book_page, file_full_path, download_txt, download_image
 
 
 def get_fantastic_books_soup(page: int) -> BeautifulSoup:
