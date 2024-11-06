@@ -1,6 +1,9 @@
 import json
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from livereload import Server
+from more_itertools import chunked
+
+
 def rebuild():
     env = Environment(
         loader=FileSystemLoader('.'),
@@ -11,7 +14,7 @@ def rebuild():
     with open("downloaded/description.json", 'r') as f:
         books_description = json.load(f)
 
-    rendered_page = template.render({'books': books_description})
+    rendered_page = template.render({'books': chunked(books_description,2)})
     with open('index.html', 'w', encoding="utf8") as file:
         file.write(rendered_page)
     print('rebuilded')
