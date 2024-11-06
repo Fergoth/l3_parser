@@ -22,11 +22,19 @@ def rebuild():
         books_description = json.load(f)
 
     for book in books_description:
-        book['book_path'] = quote(book['book_path'])
-
-    for page_num, page in enumerate(chunked(books_description,n=books_per_page)):
-        rendered_page = template.render({'books': chunked(page,2)})
-        filepath = os.path.join(html_folder,f'index{page_num+1}.html')
+        book['book_path'] = os.path.join('..',quote(book['book_path']))
+        book['image_path'] = os.path.join('..', quote(book['image_path']))
+    pages = list(chunked(books_description,n=books_per_page))
+    for page_num, page in enumerate(pages):
+        current_page = page_num + 1
+        rendered_page = template.render(
+            {
+                'books': chunked(page,2),
+                'pages_count': len(pages),
+                'current_page': current_page
+            }
+        )
+        filepath = os.path.join(html_folder,f'index{current_page}.html')
         with open(filepath, 'w', encoding="utf8") as file:
             file.write(rendered_page)
     print('rebuilded')
