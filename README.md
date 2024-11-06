@@ -46,6 +46,9 @@ python parse_tululu_category.py --folder some_folder
 python parse_tululu_category.py --skip_img --skip_txt
 ```
 
+
+Так же доступен пример со скачанными книгами в виде GitHub pages.
+Сайт доступен по [ссылке](https://fergoth.github.io/l3_parser/pages/index1.html)
 ## Цели проекта
 
 Код написан в учебных целях — это урок в курсе по Python и веб-разработке на сайте [Devman](https://dvmn.org).
