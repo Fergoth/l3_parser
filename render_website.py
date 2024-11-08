@@ -9,6 +9,7 @@ from more_itertools import chunked
 
 def rebuild():
     books_per_page = 20
+    books_per_column = 2
     html_folder = 'pages'
     env = Environment(
         loader=FileSystemLoader('.'),
@@ -18,26 +19,25 @@ def rebuild():
     os.makedirs(html_folder,exist_ok=True)
 
     template = env.get_template('template.html')
-    with open("downloaded/description.json", 'r') as f:
+    with open('media/description.json', 'r') as f:
         books_description = json.load(f)
 
     for book in books_description:
         book['book_path'] = os.path.join('..',quote(book['book_path']))
         book['image_path'] = os.path.join('..', quote(book['image_path']))
     pages = list(chunked(books_description,n=books_per_page))
-    for page_num, page in enumerate(pages):
-        current_page = page_num + 1
+    for page_num, page in enumerate(pages, start=1):
+        current_page = page_num
         rendered_page = template.render(
             {
-                'books': chunked(page,2),
+                'books': chunked(page, books_per_column),
                 'pages_count': len(pages),
                 'current_page': current_page
             }
         )
         filepath = os.path.join(html_folder,f'index{current_page}.html')
-        with open(filepath, 'w', encoding="utf8") as file:
+        with open(filepath, 'w', encoding='utf8') as file:
             file.write(rendered_page)
-    print('rebuilded')
 
 if __name__=='__main__':
     rebuild()
