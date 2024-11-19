@@ -49,6 +49,14 @@ python parse_tululu_category.py --skip_img --skip_txt
 
 Так же доступен пример со скачанными книгами в виде GitHub pages.
 Сайт доступен по [ссылке](https://fergoth.github.io/l3_parser/pages/index1.html)
+
+Для локального запуска сайта запустить скрипт:
+```commandline
+python render_website.py [путь до файла description.json]
+```
+По умолчанию путь media/description.json и скрипт запустит сайт с готовыми данными как на GutHub pages по адресу http://127.0.0.1:5500/pages/index1.html.
+
+Для запуска со своими книгами, требуется удалить папку pages, запустить скрипт parse_tululu_category.py и явно указать путь к description.json (по умолчанию downloaded/description.json)
 ## Цели проекта
 
 Код написан в учебных целях — это урок в курсе по Python и веб-разработке на сайте [Devman](https://dvmn.org).
