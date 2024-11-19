@@ -1,5 +1,8 @@
+import argparse
 import json
 import os
+from os import PathLike
+from pathlib import Path
 from urllib.parse import quote
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -7,7 +10,7 @@ from livereload import Server
 from more_itertools import chunked
 
 
-def rebuild():
+def rebuild(settings_path):
     books_per_page = 20
     books_per_column = 2
     html_folder = 'pages'
@@ -19,9 +22,12 @@ def rebuild():
     os.makedirs(html_folder,exist_ok=True)
 
     template = env.get_template('template.html')
-    with open('media/description.json', 'r') as f:
-        books_description = json.load(f)
-
+    try:
+        with open(Path(settings_path), 'r') as f:
+            books_description = json.load(f)
+    except FileNotFoundError:
+        print("Некорректный путь до настроек, перезапустите скрипт.")
+        exit(0)
     for book in books_description:
         book['book_path'] = os.path.join('..',quote(book['book_path']))
         book['image_path'] = os.path.join('..', quote(book['image_path']))
@@ -40,7 +46,10 @@ def rebuild():
             file.write(rendered_page)
 
 if __name__=='__main__':
-    rebuild()
+    parser = argparse.ArgumentParser("Скрипт для запуска локального сайта со скаченными книгами")
+    parser.add_argument("--path_to_settings", type=str, default='media/description.json',help='Путь к файлу настроек')
+    args = parser.parse_args()
+    rebuild(args.path_to_settings)
     server = Server()
     server.watch('template.html',rebuild)
     server.serve(root='.')
